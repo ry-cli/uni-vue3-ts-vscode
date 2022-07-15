@@ -1,19 +1,6 @@
-import axios, { AxiosRequestConfig, AxiosResponse, ResponseType } from 'axios'
-
-export interface IAjaxConfigBase {
+import Storage from './storageTool'
+export interface IBaseRequestConfig {
     url: string
-    params?: any
-    data?: any
-    responseType?: ResponseType
-}
-
-export interface IAjaxConfig extends IAjaxConfigBase {
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
-}
-
-export interface IRequestConfig {
-    url: string
-    method: string
     data?: string | AnyObject | ArrayBuffer
     header?: any
     timeout?: number
@@ -21,36 +8,46 @@ export interface IRequestConfig {
     responseType?: string
 }
 
-const apiVersion = 'v1'
-const baseURL = 'http://api.demo.com'
+export interface IRequestConfig extends IBaseRequestConfig {
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+}
 
-const instance = axios.create({
-    baseURL,
-    timeout: 60000,
-})
-// instance.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+export interface IResponseType<T = any> {
+    code: number
+    msg: string
+    data: T
+}
 
-const ajax = async <T>(config: IAjaxConfig): Promise<T> => {
-    const axiosConfig: AxiosRequestConfig = {
-        url: `/${apiVersion}${config.url}`,
-        method: config.method || 'GET',
-        params: config.params,
-        data: config.data,
-        responseType: config.responseType,
+// const BASE_URL = envConfig.apiHost + envConfig.apiVersion
+const BASE_URL = 'localhost:3000/v1'
+
+const ajax = async <T>(config: IRequestConfig): Promise<T> => {
+    const requestConfig: UniApp.RequestOptions = {
+        ...config,
+        url: BASE_URL + config.url,
+        header: {
+            Authorization: Storage.getItem('token'),
+        },
     }
 
-    try {
-        const res = await instance.request<T>(axiosConfig)
-        return res.data
-    } catch (err) {
-        console.error('请求失败：', err)
-        return new Promise(() => {})
-    }
+    return new Promise((resolve, reject) => {
+        uni.request({
+            ...requestConfig,
+            success: (response: UniApp.RequestSuccessCallbackResult) => {
+                console.log(config.method + ' ' + config.url + ' 请求成功：', response.data)
+                resolve(response.data as T)
+            },
+            fail: (err) => {
+                console.log(config.method + ' ' + config.url + '请求失败：', err)
+                reject(err)
+            },
+        })
+    })
 }
 
 const request = {
-    get: async <T>(config: IAjaxConfigBase) => {
-        const ajaxConfig: IAjaxConfig = {
+    get: async <T>(config: IBaseRequestConfig) => {
+        const ajaxConfig: IRequestConfig = {
             ...config,
             method: 'GET',
         }
@@ -58,24 +55,24 @@ const request = {
         return await ajax<T>(ajaxConfig)
     },
 
-    delete: async <T>(config: IAjaxConfigBase) => {
-        const ajaxConfig: IAjaxConfig = {
+    delete: async <T>(config: IBaseRequestConfig) => {
+        const ajaxConfig: IRequestConfig = {
             ...config,
             method: 'DELETE',
         }
 
         return await ajax<T>(ajaxConfig)
     },
-    post: async <T>(config: IAjaxConfigBase) => {
-        const ajaxConfig: IAjaxConfig = {
+    post: async <T>(config: IBaseRequestConfig) => {
+        const ajaxConfig: IRequestConfig = {
             ...config,
             method: 'POST',
         }
 
         return await ajax<T>(ajaxConfig)
     },
-    put: async <T>(config: IAjaxConfigBase) => {
-        const ajaxConfig: IAjaxConfig = {
+    put: async <T>(config: IBaseRequestConfig) => {
+        const ajaxConfig: IRequestConfig = {
             ...config,
             method: 'PUT',
         }
@@ -83,36 +80,5 @@ const request = {
         return await ajax<T>(ajaxConfig)
     },
 }
-
-// 请求拦截器
-instance.interceptors.request.use(
-    (config: AxiosRequestConfig) => {
-        return config
-    },
-    (error) => {
-        console.error('请求失败：', error)
-        return Promise.reject(error)
-    }
-)
-
-// 响应拦截器
-instance.interceptors.response.use(
-    (response: AxiosResponse) => {
-        switch (response.data.code) {
-            case 200:
-                return response
-            case 401:
-                console.log('请重新登录')
-                break
-            default:
-                return response
-        }
-    },
-    (error: any) => {
-        // 处理响应错误
-        console.log('请求响应出错：', error)
-        return Promise.reject(error)
-    }
-)
 
 export default request
