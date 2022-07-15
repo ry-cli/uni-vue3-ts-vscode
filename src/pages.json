@@ -1,0 +1,63 @@
+{
+    "pages": [
+        {
+            "path": "pages/home/index",
+            "style": {
+                "navigationStyle": "custom",
+                "navigationBarTitleText": "首页",
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        },
+        {
+            "path": "pages/profile/index",
+            "style": {
+                "navigationStyle": "custom",
+                "navigationBarTitleText": "我的",
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        }
+    ],
+    "tabBar": {
+        "position": "bottom",
+        "list": [
+            {
+                "text": "",
+                "pagePath": "pages/home/index",
+                "iconPath": "static/images/icon-tabbar-home.png",
+                "selectedIconPath": "static/icon-tabbar-home-s.png"
+            },
+            {
+                "text": "",
+                "pagePath": "pages/profile/index",
+                "iconPath": "static/images/icon-tabbar-wode.png",
+                "selectedIconPath": "static/images/icon-tabbar-wode-s.png"
+            }
+        ]
+    },
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "uni-app",
+        "navigationBarBackgroundColor": "#F8F8F8",
+        "backgroundColor": "#F8F8F8"
+    },
+    "condition": {
+        //模式配置，仅开发期间生效
+        "current": 0, //当前激活的模式(list 的索引项)
+        "list": [
+            {
+                "name": "首页", //模式名称
+                "path": "pages/home/index", //启动页面，必选
+                "query": "" //启动参数，在页面的onLoad函数里面得到
+            },
+            {
+                "name": "我的", //模式名称
+                "path": "pages/profile/index", //启动页面，必选
+                "query": "" //启动参数，在页面的onLoad函数里面得到  pages/server/detail
+            }
+        ]
+    }
+}

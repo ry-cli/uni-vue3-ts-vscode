@@ -1,0 +1,14 @@
+build/*.js
+src/assets
+public
+dist
+src/uni.scss
+src/manifest.json
+src/pages.json
+src/env.d.ts
+src/static/*.png
+src/static/*.jpg
+src/static/*.jpeg
+src/static/images/**
+src/static/font/**
+src/uni_modules/**
